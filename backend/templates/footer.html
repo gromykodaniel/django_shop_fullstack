@@ -1,0 +1,29 @@
+{% load extra_settings %}
+
+<!-- Footer -->
+<footer class="container text-center my-5">
+
+    <div class="row justify-content-center h-100">
+        <div class="col-5 my-auto p-0">
+            <hr class="text-black-50 my-0">
+        </div>
+
+        <div class="col-auto my-auto">
+            <span class="ti-control-record fs-3 opacity-25 my-0"></span>
+        </div>
+
+        <div class="col-5 my-auto p-0">
+            <hr class="text-black-50 my-0">
+        </div>	
+    </div>
+
+    <div class="mt-4">© 2022 {% get_setting 'SITE_NAME' default='Название сайта' %} - Интернет-маркетплейс на Django</div>
+    <sub class="text-colored float-end pt-4 pb-5 d-inline-flex">made by Re;Gelu
+        <div class="waves-container mx-3">
+            {% for i in '_'|rjust:"20" %}
+                <div class="wave" style="--i: {{forloop.counter}}"></div>
+            {% endfor %}
+        </div>
+    </sub>
+    
+</footer>

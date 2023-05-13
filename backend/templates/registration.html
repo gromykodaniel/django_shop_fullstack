@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{block.super}}
+    | Регистрация
+{% endblock title %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %} 
+    <div class="container col-md-5 col-12 p-3 p-xl-5 pt-5">
+        <form class="row g-4 needs-validation" method="post" novalidate>
+            {% csrf_token %}
+            
+            <p class="h3 text-center">Регистрация</p>
+
+            <hr>
+            
+            {% crispy registration_form %}
+
+            <!-- Terms and conditions -->
+            <div class="col-12">
+                <div class="form-check" href="#">
+                    <input class="form-check-input background-colored border-colored" type="checkbox" value="1" id="invalidCheck" required checked>
+                    <label class="form-check-label" for="invalidCheck">
+                        <a class="text-reset uk-button-text a-important" href="#">Согласен с правилами и условиями</a>
+                    </label> 
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+{% endblock content %}

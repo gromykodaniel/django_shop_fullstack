@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{block.super}}
+    | Оформление заказа
+{% endblock title %}
+
+{% load static %}
+{% load extra_settings %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div class="container col-xl-6 col-lg-8 col-md-8 col-12 p-5">
+        <form class="row g-4 needs-validation" method="post" novalidate>
+            {% csrf_token %}
+            
+            <p class="h3 text-center">Оформление заказа</p>
+
+            <hr>
+
+            <table class="uk-table uk-table-divider uk-table-middle text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Товар</th>
+                            <th class="text-center">Кол-во</th> 
+                            <th class="text-center">Цена за шт.</th>
+                            <th class="text-center">Итоговая цена</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for product in cart %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'product' %}?id={{product.id}}" class=" d-inline-flex">
+                                            <img src="{{product.image}}" width="60px" class="flex-shrink-0 me-2 my-auto rounded">
+                                            <div class="my-auto ms-2">{{product.name}}</div>
+                                        </a>
+                                    </td>
+
+                                    <td>
+                                        {{product.product_amount}}
+                                    </td>
+
+                                    <td>
+                                        {% if product.promo_price %}
+                                            <div class="text-decoration-line-through">{{product.price}} RUB</div>
+                                            <div class="text-danger">{{product.promo_price}} RUB</div>
+                                        {% else %}
+                                            {{product.price}} RUB
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if product.total_promo_price %}
+                                            <div class="text-decoration-line-through">{{product.total_price}} RUB</div>
+                                            <div class="text-danger">{{product.total_promo_price}} RUB</div>
+                                        {% else %}
+                                            {{product.total_price}} RUB
+                                        {% endif %}
+                                    </td>
+                                
+                                </tr>
+                        {% endfor %}
+
+                        <tr>
+                            <td>Итого:</td>
+                            <td colspan="2"></td>
+                            <td>
+                                {% if cart.get_total_promo_price < cart.get_total_price %}
+                                    <span class="text-decoration-line-through">{{cart.get_total_price}} RUB</span>
+                                    <span class="text-danger">{{cart.get_total_promo_price}} RUB</span>
+                                {% else %}
+                                    {{cart.get_total_price}} RUB
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            {% crispy submit_form %}
+            
+             <div class="col-12 text-center">
+                <p class="small a-important mb-1">Время на оплату: {% get_setting 'QIWI_PAYMENTS_LIFETIME' default='30' %} мин   </p>
+                <p class="small a-important">Платеж обрабатывается в течении минуты</p>
+            </div>
+
+            <!-- Terms and conditions -->
+            <!-- <div class="col-12">
+                <div class="form-check" href="#">
+                    <input class="form-check-input border-colored background-colored" type="checkbox" value="1" id="invalidCheck" required checked>
+                    <label class="form-check-label" for="invalidCheck">
+                        <a class="text-reset uk-button-text a-important" href="#">Согласен с правилами и условиями</a>
+                    </label> 
+                </div>
+            </div> -->
+        </form>
+
+    </div>
+
+{% endblock content %}

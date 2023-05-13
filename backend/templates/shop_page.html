@@ -1,0 +1,128 @@
+{% extends "base_2.html" %}
+
+{% load static %}
+
+{% block title %}
+    {{block.super}}
+    {% if products.number %}
+        | Товары - стр.{{products.number}}
+    {% endif %}
+    {% if category %}
+        | {{category}}
+    {% endif %}
+    {% if subcategory %}
+        | {{subcategory}}
+    {% endif %}
+    {% if request.GET.search_query %}
+        | Поиск - {{request.GET.search_query}}
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item lead"><a href="{% url 'products' %}?page=1">Товары</a></li>
+    {% if category %}
+        <li class="breadcrumb-item lead"><a href="{% url 'products' category=category %}">{{category}}</a></li>
+    {% endif %}
+    {% if subcategory %}
+        <li class="breadcrumb-item lead"><a href="{% url 'products' category=category subcategory=subcategory %}">{{subcategory}}</a></li>
+    {% endif %}
+    {% if request.GET.search_query %}
+        <li class="breadcrumb-item lead"><a href="{% url 'products' %}?search_query={{request.GET.search_query}}">Поиск - {{request.GET.search_query}}</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block top_row_content %}
+    {% if products %}
+        <div class="float-end">
+            <button class="btn btn-secondary dropdown-toggle m-0 me-1" type="button">
+                Сортировка
+            </button>
+
+            <div class="p-0 uk-border-rounded" uk-dropdown>
+                <form class="list-group uk-border-rounded" method="GET">
+                    <input type="submit" class="btn-check" name="sort_by" id="btnradio1" autocomplete="off" value="1">
+                    <label class="list-group-item list-group-item-action btn-outline-primary" for="btnradio1">Новинки</label>
+
+                    <input type="submit" class="btn-check" name="sort_by" id="btnradio2" autocomplete="off" value="2">
+                    <label class="list-group-item list-group-item-action btn-outline-primary" for="btnradio2">Сначала дешёвые</label>
+
+                    <input type="submit" class="btn-check" name="sort_by" id="btnradio3" autocomplete="off" value="3">
+                    <label class="list-group-item list-group-item-action btn-outline-primary" for="btnradio3">Сначала дорогие</label>
+
+                    <input type="submit" class="btn-check" name="sort_by" id="btnradio3" autocomplete="off" value="4">
+                    <label class="list-group-item list-group-item-action btn-outline-primary" for="btnradio3">По размеру скидки</label>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content_2 %}
+
+<!-- Cards row -->
+<div class="row mt-1 g-2">
+    {% if products %}
+
+        <!-- Breadcrumbs -->
+        {% block top_row %}
+            {{ block.super }}
+        {% endblock %}
+
+        {% for product in products %}
+            <div class="col-xl-3">
+                {% include "product_card.html" %}
+            </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination justify-content-center flex-wrap mt-3 mb-4 fs-4">
+
+                <!-- previous_page -->
+                {% if products.has_previous %}
+                    <li class="page-item"><a class="page-link text-colored" href="?page={{products.previous_page_number}}">&laquo;</a></li>
+                {% else %}
+                    <li class="disabled page-item"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+
+                <!-- pagination -->
+                {% for page in page_range %}
+                    {% if products.number == page %}
+                        <li class="active page-item"><span class="page-link background-colored border-colored">{{page}}</span></li>
+                    {% else %}
+                        {% if page == products.paginator.ELLIPSIS %}
+                            <li class="page-item"><span class="page-link text-colored">{{page}}</span></li>
+                        {% else %}
+                            
+                        <!--  <li class="page-item"><a class="page-link" href="{% url 'products' %}{{request.get_full_path|cut:request.path}}&page={{page}}">{{page}}</a></li> -->
+                        <li class="page-item"><a class="page-link text-colored" href="?page={{page}}">{{page}}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <!-- next_page -->
+                {% if products.has_next %}
+                    <!-- <li class="page-item"><a class="page-link" href="{% url 'products' %}{{request.get_full_path|cut:request.path}}&page={{products.next_page_number}}">&raquo;</a></li> -->
+                    <li class="page-item"><a class="page-link text-colored" href="?page={{products.next_page_number}}}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+    {% else %}
+
+        <!-- No products in category -->
+        <div class="container col-xl-5 col-12 p-5">
+            <div class="row g-3 text-center">
+                <p class="h2">Товаров пока нет!</p>
+                <hr>
+
+                <p>Возможно когда нибудь я их даже добавлю (но это не точно)</p>
+            </div>
+        </div>
+        
+    {% endif %}
+</div>
+
+{% endblock content_2 %}

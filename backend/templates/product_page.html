@@ -1,0 +1,122 @@
+{% extends "shop_page.html" %}
+
+{% load static %}
+
+{% block title %}
+    {{block.super}}
+    {% if product %}
+        {% if product.subcategory.category %}
+            | {{product.subcategory.category}}
+        {% endif %}
+        {% if product.subcategory %}
+            | {{product.subcategory}}
+        {% endif %}
+        | {{product.name}}
+    {% endif %}
+{% endblock title %}
+
+{% block breadcrumbs %}
+    {{block.super}}
+    {% if product.subcategory.category %}
+        <li class="breadcrumb-item lead"><a href="{% url 'products' category=product.subcategory.category %}">{{product.subcategory.category}}</a></li>
+    {% endif %}
+    {% if product.subcategory %}
+        <li class="breadcrumb-item lead"><a href="{% url 'products' category=product.subcategory.category subcategory=product.subcategory %}">{{product.subcategory}}</a></li>
+    {% endif %}
+    <li class="breadcrumb-item lead"><a href="#">{{product.name}}</a></li>
+{% endblock breadcrumbs %}
+
+{% block content_2 %}
+    {% if product %}
+        <article class="row mt-1">
+
+            <!-- Breadcrumbs -->
+            {% block top_row %}
+                {{ block.super }}
+            {% endblock %}
+
+            <section id="product-card" class="row mt-1">
+                <!-- Product image-->
+                <div id="product-img" class="col-xl-7 uk-transition-toggle text-center ">
+                    <img src="{{product.image.url}}" class="h-100 uk-object-scale-down p-2 uk-transition-opaque uk-transition-scale-up img-rounded" alt="Product">
+                </div>
+
+                <!-- Product price-->
+                <div class="col-xl-5 lead text-center my-auto">
+
+                    {% if product.promo_price %}
+                        Стоимость:
+                        <span class="text-reset lead text-decoration-line-through">{{product.price}} RUB</span>
+                        <span class="ms-2 lead text-danger">{{product.promo_price}} RUB</span>
+                    {% else %}
+                        Стоимость:
+                        <span class="text-reset lead">{{product.price}} RUB</span>
+                    {% endif %}
+
+                    <p class="m-3">
+                        {% if product.stock == 0 or product.avaliable == False %}
+                            <button class="btn-lg btn-outline-secondary uk-button-text text-decoration-line-through">Добавить в корзину <i class="bi bi-cart"></i></button>
+                        {% else %}
+                            <button id="cart-add-one-btn" product-id="{{product.id}}" class="btn-lg uk-button-text border-colored">Добавить в корзину <i class="bi bi-cart"></i></button>
+                        {% endif %}
+                    </p>
+
+                    {% if product.stock >= 0 %}
+                        <p>
+                            {% if product.stock == 0 or product.avaliable == False %}
+                                <p class="text-colored">Товара нет в наличии!</p>
+                            {% else %}
+                                {% if product.stock <= 5 %}
+                                    <p class="text-colored">Товара осталось меньше 5шт!</p>
+                                {% else %}
+                                    {% if product.stock <= 10 %}
+                                        <p class="text-colored">Товара осталось меньше 10шт!</p>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="row mt-1">
+                <div class="col-xl-7 m-2 my-3 text-center">
+
+                    <!-- Product name-->
+                    <h5 class="lead fs-3">
+                        {{product.name}}
+                    </h5>
+
+                    <!-- Product information-->
+                    <div class="my-3">
+                        {{product.information}}
+                    </div>
+                </div>
+
+                <div class="col-xl-10">
+                    {% if product.full_information %}
+                        {% autoescape off %}{{product.full_information}}{% endautoescape %}
+                    {% else %}
+                        <div class="lead m-5">Описание отсутвует</div>
+                    {% endif %}
+                  
+                </div>
+            </section>
+        </article>
+
+        {{product.id|json_script:"product-id-json"}}
+    
+    {% else %}
+
+        <!-- No product -->
+        <div class="container col-xl-5 col-12 p-5">
+            <div class="row g-3 text-center">
+                <p class="h2">Товара нет!</p>
+                <hr>
+
+                <p>Возможно произошла какая-то ошибка...</p>
+            </div>
+        </div>
+
+    {% endif %}
+{% endblock content_2 %}

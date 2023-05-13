@@ -1,0 +1,88 @@
+version: "3.10"
+   
+services:
+
+  backend:
+    build: ./backend
+    container_name: 'gunicorn_backend'
+    volumes:
+      - backend_static_volume:/usr/src/app/backend/staticfiles
+      - backend_media_volume:/usr/src/app/backend/media
+    expose:
+      - 8000
+    env_file:
+      - backend/.env.prod
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build: ./frontend
+    container_name: 'next_frontend'
+    expose:
+      - 3000
+    env_file:
+      - frontend/.env
+    depends_on:
+      - nginx_backend
+
+  db:
+    image: postgres:13.0-alpine
+    container_name: 'database'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - backend/.env.prod.db
+
+  nginx_backend:
+    build: ./backend/nginx
+    container_name: 'nginx_backend'
+    restart: always
+    volumes:
+      - backend_static_volume:/usr/src/app/backend/staticfiles
+      - backend_media_volume:/usr/src/app/backend/media
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+  
+  nginx_frontend:
+    build: ./frontend/nginx
+    container_name: 'nginx_frontend'
+    restart: always
+    volumes:
+      - frontend_static_volume:/usr/src/app/frontend/_next/static
+      - frontend_next_static_volume:/usr/src/app/frontend/static
+    ports:
+      - 30:30
+    depends_on:
+      - frontend
+
+  redis:
+    image: redis:7-alpine
+    container_name: 'redis'
+    restart: always
+
+  celery:
+    command: celery -A config worker --beat --loglevel=info --logfile=./logs/celery/celery.log
+    container_name: 'celery'
+    build: ./backend
+    env_file:
+      - backend/.env.prod
+    environment:
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - backend
+      - redis
+      - db
+
+volumes:
+
+  postgres_data:
+  backend_static_volume:
+  backend_media_volume:
+  frontend_static_volume:
+  frontend_next_static_volume:
